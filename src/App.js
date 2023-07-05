@@ -37,18 +37,20 @@ function App() {
     setUsageCount(prevCount => ++prevCount);
   };
 
+  const Input = ({ value, children, onChange }) => {
+    return <input value={value} onChange={onChange} placeholder={children} />;
+  };
+
   return (
     <div className="App">
-      <input
-        value={valueA}
-        onChange={e => inputChangeHandler(e, setValueA)}
-        placeholder="number a"
-      />
+      <Input value={valueA} onChange={e => inputChangeHandler(e, setValueA)}>
+        number a
+      </Input>
       <select value={operation} onChange={onSelectOperation}>
-        <option value="add">+</option>
-        <option value="subtract">-</option>
-        <option value="multiply">x</option>
-        <option value="divide">:</option>
+        <option value="add">Add +</option>
+        <option value="subtract">Subtract -</option>
+        <option value="multiply">Multiply x</option>
+        <option value="divide">Divide :</option>
       </select>
 
       <input
@@ -57,8 +59,13 @@ function App() {
         placeholder="number b"
       />
       <input value={result} placeholder="result" disabled />
-      <button onClick={calculateHandler}>Calculate</button>
-      {isConnected && <p>Calculator used: {usageCount} times</p>}
+
+      {isConnected && (
+        <React.Fragment>
+          <button onClick={calculateHandler}>Calculate</button>
+          <p>Calculator used: {usageCount} times</p>
+        </React.Fragment>
+      )}
     </div>
   );
 }
