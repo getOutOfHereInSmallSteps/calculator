@@ -10,19 +10,38 @@ function App() {
   const [operation, setOperation] = useState('');
   const [usageCount, setUsageCount] = useState(0);
 
+  const inputChangeHandler = (e, setter) => {
+    const inputValue = e.target.value;
+    setter(inputValue);
+  };
+
+  const onSelectOperation = e => {
+    const selectedOperation = e.target.value;
+
+    setOperation(selectedOperation);
+  };
+
   return (
     <div className="App">
-      <input placeholder="number a" />
-      <select>
-        <option>+</option>
-        <option>-</option>
-        <option>x</option>
-        <option>:</option>
+      <input
+        value={valueA}
+        onChange={e => inputChangeHandler(e, setValueA)}
+        placeholder="number a"
+      />
+      <select value={operation} onChange={onSelectOperation}>
+        <option value="add">+</option>
+        <option value="subtract">-</option>
+        <option value="multiply">x</option>
+        <option value="divide">:</option>
       </select>
-      <input placeholder="number b" />
-      <input placeholder="result" disabled />
-      <button>Calculate</button>
 
+      <input
+        value={valueB}
+        onChange={e => inputChangeHandler(e, setValueB)}
+        placeholder="number b"
+      />
+      <input value={result} placeholder="result" disabled />
+      <button>Calculate</button>
       {isConnected && <p>Calculator used: {usageCount} times</p>}
     </div>
   );
