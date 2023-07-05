@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import './App.css';
 
@@ -10,6 +10,14 @@ function App() {
   const [operation, setOperation] = useState('');
   const [usageCount, setUsageCount] = useState(0);
 
+  useEffect(() => {
+    const isMetaMask = true;
+
+    if (isMetaMask) {
+      setIsConnected(true);
+    }
+  }, []);
+
   const inputChangeHandler = (e, setter) => {
     const inputValue = e.target.value;
     setter(inputValue);
@@ -19,6 +27,14 @@ function App() {
     const selectedOperation = e.target.value;
 
     setOperation(selectedOperation);
+  };
+
+  const calculateHandler = () => {
+    // pesudocode setup
+    setResult('');
+    // const usageCount = fetch(...)
+    // setusageCount(usageCount)
+    setUsageCount(prevCount => ++prevCount);
   };
 
   return (
@@ -41,7 +57,7 @@ function App() {
         placeholder="number b"
       />
       <input value={result} placeholder="result" disabled />
-      <button>Calculate</button>
+      <button onClick={calculateHandler}>Calculate</button>
       {isConnected && <p>Calculator used: {usageCount} times</p>}
     </div>
   );
