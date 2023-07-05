@@ -1,6 +1,15 @@
+import React, { useState } from 'react';
+
 import './App.css';
 
 function App() {
+  const [isConnected, setIsConnected] = useState(false);
+  const [valueA, setValueA] = useState('');
+  const [valueB, setValueB] = useState('');
+  const [result, setResult] = useState('');
+  const [operation, setOperation] = useState('');
+  const [usageCount, setUsageCount] = useState(0);
+
   return (
     <div className="App">
       <input placeholder="number a" />
@@ -13,7 +22,8 @@ function App() {
       <input placeholder="number b" />
       <input placeholder="result" disabled />
       <button>Calculate</button>
-      <p>Calculator used: 100 times</p>
+
+      {isConnected && <p>Calculator used: {usageCount} times</p>}
     </div>
   );
 }
