@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 
 import './App.css';
+import { InputField } from './InputField';
+import { OperationSelector } from './OperationSelector';
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [valueA, setValueA] = useState('');
   const [valueB, setValueB] = useState('');
-  const [result, setResult] = useState('');
   const [operation, setOperation] = useState('');
+  const [result, setResult] = useState('');
   const [usageCount, setUsageCount] = useState(0);
 
   useEffect(() => {
@@ -23,41 +25,32 @@ function App() {
     setter(inputValue);
   };
 
-  const onSelectOperation = e => {
-    const selectedOperation = e.target.value;
-
-    setOperation(selectedOperation);
-  };
-
   const calculateHandler = () => {
     // pesudocode setup
+    // const res = contract[operation](a, b)
+    // setResult(res);
     setResult('');
     // const usageCount = fetch(...)
     // setusageCount(usageCount)
     setUsageCount(prevCount => ++prevCount);
   };
 
-  const Input = ({ value, children, onChange }) => {
-    return <input value={value} onChange={onChange} placeholder={children} />;
-  };
-
   return (
     <div className="App">
-      <Input value={valueA} onChange={e => inputChangeHandler(e, setValueA)}>
+      <InputField
+        value={valueA}
+        onChange={e => inputChangeHandler(e, setValueA)}
+      >
         number a
-      </Input>
-      <select value={operation} onChange={onSelectOperation}>
-        <option value="add">Add +</option>
-        <option value="subtract">Subtract -</option>
-        <option value="multiply">Multiply x</option>
-        <option value="divide">Divide :</option>
-      </select>
-
-      <input
+      </InputField>
+      <OperationSelector operation={operation} setOperation={setOperation} />
+      <InputField
         value={valueB}
         onChange={e => inputChangeHandler(e, setValueB)}
-        placeholder="number b"
-      />
+      >
+        number b
+      </InputField>
+
       <input value={result} placeholder="result" disabled />
 
       {isConnected && (
