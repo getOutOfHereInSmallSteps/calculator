@@ -9,6 +9,8 @@ import Web3 from 'web3';
 import { Contract } from 'web3';
 import CalculatorContractABI from './ContractABI.json';
 
+const contractAddress = '0x1851ffBce02A134eFd9ddBC91920b0c6DCEfB6f5';
+
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [valueA, setValueA] = useState('');
@@ -20,8 +22,6 @@ function App() {
   const [web3, setWeb3] = useState(null);
   const [contract, setContract] = useState(null);
   const [accounts, setAccounts] = useState(null);
-
-  const contractAddress = '0x1851ffBce02A134eFd9ddBC91920b0c6DCEfB6f5';
 
   const checkMetaMaskConnection = async () => {
     const accounts = await web3.eth.getAccounts();
