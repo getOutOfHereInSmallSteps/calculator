@@ -9,13 +9,11 @@ import Web3 from 'web3';
 import { Contract } from 'web3';
 import CalculatorContractABI from './ContractABI.json';
 
-import { utils } from 'web3';
-
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [valueA, setValueA] = useState('');
   const [valueB, setValueB] = useState('');
-  const [operation, setOperation] = useState('');
+  const [operation, setOperation] = useState('add');
   const [result, setResult] = useState('');
   const [usageCount, setUsageCount] = useState(0);
 
@@ -25,62 +23,46 @@ function App() {
 
   const contractAddress = '0x1851ffBce02A134eFd9ddBC91920b0c6DCEfB6f5';
 
-  const checkMetaMaskConnection = () => {};
+  const checkMetaMaskConnection = async () => {
+    const accounts = await web3.eth.getAccounts();
+    const isMetaMaskConnected = accounts.length > 0;
+    setIsConnected(isMetaMaskConnected);
+    setAccounts(accounts);
+  };
 
-  useEffect(() => {
-    if (window.ethereum._metamask.isUnlocked()) {
-      setIsConnected(true);
-      const web3 = new Web3(window.ethereum);
-      console.log(window.ethereum);
-      setWeb3(web3);
-    }
-
-    // web3.eth.getAccounts().then(res => setIsConnected(res.length > 0));
-  }, []);
-
-  useEffect(() => {
-    if (web3) {
-      const contract = new Contract(
-        CalculatorContractABI,
-        contractAddress,
-        web3
-      );
-
-      setContract(contract);
-      console.log(contract.methods);
-    }
-  }, [web3]);
-
-  const test = async () => {
-    if (contract) {
-      const accounts = await web3.eth.getAccounts();
-      console.log(accounts);
-
-      // const res = await contract.methods.add(1, 2).send({ from: accounts[0] });
-
-      // console.log(utils.toBigInt(1));
-
-      // const res = await contract.methods
-      //   .divide(3n, 2n)
-      //   .call({ from: accounts[0] });
-      const res = await contract.methods
-        .divide(3n, 2n)
-        .send({ from: accounts[0] });
-
-      const res2 = await contract.methods.usageCount().call();
-
-      console.log('1: ' + parseInt(res2));
-
-      console.log(contract);
-
-      // console.log(res.events.Result.returnValues.result);
-
-      console.log(parseInt('2: ' + res));
+  const fetchUsageCount = async () => {
+    try {
+      const count = await contract.methods
+        .usageCount()
+        .call({ from: accounts[0] });
+      const countNum = parseInt(count);
+      setUsageCount(countNum);
+    } catch (e) {
+      console.log('Something went wrong: ' + e);
     }
   };
 
   useEffect(() => {
-    test();
+    if (window.ethereum.isConnected()) {
+      const web3 = new Web3(window.ethereum);
+      setWeb3(web3);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!web3) return;
+    checkMetaMaskConnection();
+
+    if (!isConnected) return;
+
+    const contract = new Contract(CalculatorContractABI, contractAddress, web3);
+    setContract(contract);
+  }, [web3, isConnected]);
+
+  useEffect(() => {
+    if (contract) {
+      fetchUsageCount();
+    }
   }, [contract]);
 
   const inputChangeHandler = (e, setter) => {
@@ -88,7 +70,15 @@ function App() {
     setter(inputValue);
   };
 
-  const calculateHandler = () => {};
+  const calculateHandler = async () => {
+    await contract.methods[operation](valueA, valueB).send({
+      from: accounts[0],
+    });
+    const res = await contract.methods[operation](valueA, valueB).call();
+    const resNum = parseInt(res);
+    setResult(resNum);
+    fetchUsageCount();
+  };
 
   return (
     <div className="App">
