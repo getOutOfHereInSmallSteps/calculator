@@ -74,6 +74,7 @@ function App() {
   };
 
   const calculateHandler = async () => {
+    if (!valueA || !valueB || isNaN(valueA) || isNaN(valueB)) return;
     setIsLoading(true);
     await contract.methods[operation](valueA, valueB).send({
       from: accounts[0],
