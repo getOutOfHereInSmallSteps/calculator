@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
 import './App.css';
+import 'bootstrap/dist/css/bootstrap.css';
+
 import { InputField } from './InputField';
 import { OperationSelector } from './OperationSelector';
 
@@ -18,6 +20,7 @@ function App() {
   const [operation, setOperation] = useState('add');
   const [result, setResult] = useState('');
   const [usageCount, setUsageCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [web3, setWeb3] = useState(null);
   const [contract, setContract] = useState(null);
@@ -71,6 +74,7 @@ function App() {
   };
 
   const calculateHandler = async () => {
+    setIsLoading(true);
     await contract.methods[operation](valueA, valueB).send({
       from: accounts[0],
     });
@@ -78,30 +82,70 @@ function App() {
     const resNum = parseInt(res);
     setResult(resNum);
     fetchUsageCount();
+    setIsLoading(false);
   };
 
   return (
-    <div className="App">
-      <InputField
-        value={valueA}
-        onChange={e => inputChangeHandler(e, setValueA)}
-      >
-        number a
-      </InputField>
-      <OperationSelector operation={operation} setOperation={setOperation} />
-      <InputField
-        value={valueB}
-        onChange={e => inputChangeHandler(e, setValueB)}
-      >
-        number b
-      </InputField>
+    <div className="container app">
+      <h1>Calculator</h1>
+      <div className="row">
+        <div className="col">
+          <InputField
+            value={valueA}
+            onChange={e => inputChangeHandler(e, setValueA)}
+          >
+            number a
+          </InputField>
+        </div>
+        <div className="col">
+          <OperationSelector
+            operation={operation}
+            setOperation={setOperation}
+          />
+        </div>
+        <div className="col">
+          <InputField
+            value={valueB}
+            onChange={e => inputChangeHandler(e, setValueB)}
+          >
+            number b
+          </InputField>
+        </div>
+      </div>
 
-      <input value={result} placeholder="result" disabled />
+      <div className="row mt-3">
+        <div className="col">
+          <input
+            className="form-control"
+            value={result}
+            placeholder="result"
+            disabled
+          />
+        </div>
+      </div>
 
       {isConnected && (
         <React.Fragment>
-          <button onClick={calculateHandler}>Calculate</button>
-          <p>Calculator used: {usageCount} times</p>
+          <div className="row mt-3">
+            <div className="col">
+              <button className="btn btn-primary" onClick={calculateHandler}>
+                Calculate
+              </button>
+            </div>
+          </div>
+          <div className="row mt-3">
+            <div className="col">
+              <p>Calculator used: {usageCount} times</p>
+            </div>
+          </div>
+
+          {isLoading && (
+            <div className="d-flex justify-content-center">
+              <div className="spinner-border" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          )}
         </React.Fragment>
       )}
     </div>

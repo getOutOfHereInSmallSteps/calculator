@@ -8,7 +8,11 @@ export const OperationSelector = ({ operation, setOperation }) => {
   };
 
   return (
-    <select value={operation} onChange={selectOperationHandler}>
+    <select
+      value={operation}
+      onChange={selectOperationHandler}
+      className="form-select"
+    >
       <option value="add">Add +</option>
       <option value="subtract">Subtract -</option>
       <option value="multiply">Multiply x</option>
