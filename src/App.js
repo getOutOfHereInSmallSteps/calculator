@@ -13,6 +13,16 @@ import CalculatorContractABI from './ContractABI.json';
 
 const contractAddress = '0x1851ffBce02A134eFd9ddBC91920b0c6DCEfB6f5';
 
+const LoadingSpinner = () => {
+  return (
+    <div className="d-flex justify-content-center">
+      <div className="spinner-border" role="status">
+        <span className="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  );
+};
+
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [valueA, setValueA] = useState('');
@@ -114,7 +124,7 @@ function App() {
         </div>
       </div>
 
-      <div className="row mt-3">
+      <div className="row mt-3 mb-3">
         <div className="col">
           <input
             className="form-control"
@@ -125,7 +135,7 @@ function App() {
         </div>
       </div>
 
-      {isConnected && (
+      {isConnected ? (
         <React.Fragment>
           <div className="row mt-3">
             <div className="col">
@@ -139,16 +149,15 @@ function App() {
               <p>Calculator used: {usageCount} times</p>
             </div>
           </div>
-
-          {isLoading && (
-            <div className="d-flex justify-content-center">
-              <div className="spinner-border" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
-            </div>
-          )}
+        </React.Fragment>
+      ) : (
+        <React.Fragment>
+          <p>We detected MetaMask extension, but couldn't find connection</p>
+          <button className="btn btn-info mb-3">Connect MetaMask</button>
         </React.Fragment>
       )}
+
+      {isLoading && <LoadingSpinner />}
     </div>
   );
 }
