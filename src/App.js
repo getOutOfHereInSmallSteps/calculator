@@ -6,16 +6,15 @@ import 'bootstrap/dist/css/bootstrap.css';
 import { InputField } from './components/InputField';
 import { OperationSelector } from './components/OperationSelector';
 
-import Web3 from 'web3';
-
-import { Contract } from 'web3';
 import CalculatorContractABI from './contracts/ContractABI.json';
+
 import { LoadingSpinner } from './components/LoadingSpinner';
+import { OutputField } from './components/OutputField';
+import useContractInitialization from './hooks/useContractInitialization';
 
 const contractAddress = '0x1851ffBce02A134eFd9ddBC91920b0c6DCEfB6f5';
 
 function App() {
-  const [isConnected, setIsConnected] = useState(false);
   const [valueA, setValueA] = useState('');
   const [valueB, setValueB] = useState('');
   const [operation, setOperation] = useState('');
@@ -23,27 +22,13 @@ function App() {
   const [usageCount, setUsageCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [web3, setWeb3] = useState(null);
-  const [contract, setContract] = useState(null);
-  const [accounts, setAccounts] = useState(null);
-
-  const checkMetaMaskConnection = async () => {
-    const accounts = await web3.eth.getAccounts();
-    const isMetaMaskConnected = accounts.length > 0;
-    setIsConnected(isMetaMaskConnected);
-    setAccounts(accounts);
-  };
-
-  const connectMetamaskHandler = async () => {
-    try {
-      await window.ethereum.request({
-        method: 'eth_requestAccounts',
-      });
-      setIsConnected(true);
-    } catch (e) {
-      console.error(e.message);
-    }
-  };
+  const {
+    contract,
+    isMetaMask,
+    isConnected,
+    accounts,
+    connectMetamaskHandler,
+  } = useContractInitialization(CalculatorContractABI, contractAddress);
 
   const fetchUsageCount = async () => {
     try {
@@ -51,34 +36,12 @@ function App() {
         .usageCount()
         .call({ from: accounts[0] });
       const countNum = parseInt(count);
+
       setUsageCount(countNum);
     } catch (e) {
       console.error('Something went wrong: ' + e);
     }
   };
-
-  useEffect(() => {
-    if (window.ethereum.isConnected()) {
-      const web3 = new Web3(window.ethereum);
-      setWeb3(web3);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!web3) return;
-    checkMetaMaskConnection();
-
-    if (!isConnected) return;
-
-    const contract = new Contract(CalculatorContractABI, contractAddress, web3);
-    setContract(contract);
-  }, [web3, isConnected]);
-
-  useEffect(() => {
-    if (contract) {
-      fetchUsageCount();
-    }
-  }, [contract]);
 
   const inputChangeHandler = (e, setter) => {
     const inputValue = e.target.value;
@@ -86,17 +49,31 @@ function App() {
   };
 
   const calculateHandler = async () => {
-    if (!valueA || !valueB || isNaN(valueA) || isNaN(valueB)) return;
-    setIsLoading(true);
-    await contract.methods[operation](valueA, valueB).send({
-      from: accounts[0],
-    });
-    const res = await contract.methods[operation](valueA, valueB).call();
-    const resNum = parseInt(res);
-    setResult(resNum);
-    fetchUsageCount();
-    setIsLoading(false);
+    try {
+      if (!valueA || !valueB || isNaN(valueA) || isNaN(valueB)) return;
+
+      setIsLoading(true);
+
+      await contract.methods[operation](valueA, valueB).send({
+        from: accounts[0],
+      });
+
+      const res = await contract.methods[operation](valueA, valueB).call();
+      const resNum = parseInt(res);
+
+      setResult(resNum);
+      fetchUsageCount();
+      setIsLoading(false);
+    } catch (e) {
+      console.error(e.message);
+    }
   };
+
+  useEffect(() => {
+    if (contract) {
+      fetchUsageCount();
+    }
+  }, [contract]);
 
   return (
     <div className="container app">
@@ -128,16 +105,11 @@ function App() {
 
       <div className="row mt-3 mb-3">
         <div className="col">
-          <input
-            className="form-control"
-            value={result}
-            placeholder="result"
-            disabled
-          />
+          <OutputField value={result} />
         </div>
       </div>
 
-      {isConnected ? (
+      {isConnected && (
         <React.Fragment>
           <div className="row mt-3">
             <div className="col">
@@ -152,7 +124,9 @@ function App() {
             </div>
           </div>
         </React.Fragment>
-      ) : (
+      )}
+
+      {!isConnected && isMetaMask && (
         <React.Fragment>
           <p>
             We detected MetaMask extension, but couldn't establish connection
@@ -163,6 +137,15 @@ function App() {
           >
             Connect MetaMask
           </button>
+        </React.Fragment>
+      )}
+
+      {!isMetaMask && (
+        <React.Fragment>
+          <p>No MetaMask extension was detected.</p>
+          <a href="https://metamask.io/download/" className="btn btn-info">
+            Download here
+          </a>
         </React.Fragment>
       )}
 
