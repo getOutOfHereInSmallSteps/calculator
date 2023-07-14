@@ -13,6 +13,9 @@ export const OperationSelector = ({ operation, setOperation }) => {
       onChange={selectOperationHandler}
       className="form-select"
     >
+      <option selected disabled value="">
+        Choose...
+      </option>
       <option value="add">Add +</option>
       <option value="subtract">Subtract -</option>
       <option value="multiply">Multiply x</option>

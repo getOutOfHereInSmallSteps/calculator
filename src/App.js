@@ -3,31 +3,22 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.css';
 
-import { InputField } from './InputField';
-import { OperationSelector } from './OperationSelector';
+import { InputField } from './components/InputField';
+import { OperationSelector } from './components/OperationSelector';
 
 import Web3 from 'web3';
 
 import { Contract } from 'web3';
-import CalculatorContractABI from './ContractABI.json';
+import CalculatorContractABI from './contracts/ContractABI.json';
+import { LoadingSpinner } from './components/LoadingSpinner';
 
 const contractAddress = '0x1851ffBce02A134eFd9ddBC91920b0c6DCEfB6f5';
-
-const LoadingSpinner = () => {
-  return (
-    <div className="d-flex justify-content-center">
-      <div className="spinner-border" role="status">
-        <span className="visually-hidden">Loading...</span>
-      </div>
-    </div>
-  );
-};
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [valueA, setValueA] = useState('');
   const [valueB, setValueB] = useState('');
-  const [operation, setOperation] = useState('add');
+  const [operation, setOperation] = useState('');
   const [result, setResult] = useState('');
   const [usageCount, setUsageCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -152,7 +143,9 @@ function App() {
         </React.Fragment>
       ) : (
         <React.Fragment>
-          <p>We detected MetaMask extension, but couldn't find connection</p>
+          <p>
+            We detected MetaMask extension, but couldn't establish connection
+          </p>
           <button className="btn btn-info mb-3">Connect MetaMask</button>
         </React.Fragment>
       )}
