@@ -34,6 +34,17 @@ function App() {
     setAccounts(accounts);
   };
 
+  const connectMetamaskHandler = async () => {
+    try {
+      await window.ethereum.request({
+        method: 'eth_requestAccounts',
+      });
+      setIsConnected(true);
+    } catch (e) {
+      console.error(e.message);
+    }
+  };
+
   const fetchUsageCount = async () => {
     try {
       const count = await contract.methods
@@ -42,7 +53,7 @@ function App() {
       const countNum = parseInt(count);
       setUsageCount(countNum);
     } catch (e) {
-      console.log('Something went wrong: ' + e);
+      console.error('Something went wrong: ' + e);
     }
   };
 
@@ -146,7 +157,12 @@ function App() {
           <p>
             We detected MetaMask extension, but couldn't establish connection
           </p>
-          <button className="btn btn-info mb-3">Connect MetaMask</button>
+          <button
+            className="btn btn-info mb-3"
+            onClick={connectMetamaskHandler}
+          >
+            Connect MetaMask
+          </button>
         </React.Fragment>
       )}
 
