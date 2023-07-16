@@ -11,6 +11,8 @@ export const InputField = ({
     const inputValue = e.target.value;
     if (isNaN(+inputValue) || !inputValue === '') return;
 
+    if (inputValue.startsWith('0') && inputValue.length > 1) return;
+
     if (setValue) setValue(inputValue.trim());
   };
 

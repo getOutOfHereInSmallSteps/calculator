@@ -59,7 +59,7 @@ function App() {
     } else if (a + b < 0 && operation === 'add') {
       setValueAError('The result of an operation cannot be less than zero');
       return false;
-    } else if (!a) {
+    } else if (!valueA) {
       setValueAError('Choose a valid value to proceed');
       return false;
     }
