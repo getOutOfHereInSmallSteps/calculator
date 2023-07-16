@@ -21,11 +21,11 @@ function App() {
   const [result, setResult] = useState('');
   const [usageCount, setUsageCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-
   const [valueAError, setValueAError] = useState('');
   const [valueBError, setValueBError] = useState('');
-
   const [isFormValid, setIsFormValid] = useState(false);
+  const [inputAIsTocuhed, setInputAIsTouched] = useState(false);
+  const [inputBIsTocuhed, setInputBIsTouched] = useState(false);
 
   const {
     contract,
@@ -35,20 +35,35 @@ function App() {
     connectMetamaskHandler,
   } = useContractInitialization(CalculatorContractABI, contractAddress);
 
+  useEffect(() => {
+    if (!isMetaMask || !isConnected) return;
+    if (!inputAIsTocuhed && !inputBIsTocuhed) return;
+
+    const isValid = validateA() && validateB() && operation;
+    setIsFormValid(isValid);
+  }, [valueA, valueB, operation, isConnected, isMetaMask]);
+
+  useEffect(() => {
+    if (contract) {
+      fetchUsageCount();
+    }
+  }, [contract]);
+
   const validateA = () => {
     const a = +valueA;
     const b = +valueB;
 
     if (a < b && operation === 'subtract') {
-      setValueAError('Number a can not be less than number b');
-      return;
+      setValueAError('Number a cannot be less than number b');
+      return false;
     } else if (a + b < 0 && operation === 'add') {
-      setValueAError('The result of an operation can not be less that zero');
-      return;
+      setValueAError('The result of an operation cannot be less than zero');
+      return false;
     } else if (!a) {
       setValueAError('Choose a valid value to proceed');
-      return;
+      return false;
     }
+
     setValueAError('');
     return true;
   };
@@ -58,24 +73,15 @@ function App() {
 
     if (!valueB) {
       setValueBError('Choose a valid value to proceed');
-      return;
+      return false;
     } else if (b === 0 && operation === 'divide') {
       setValueBError('Division by zero is not allowed');
-      return;
+      return false;
     }
+
     setValueBError('');
     return true;
   };
-
-  useEffect(() => {
-    if (!isMetaMask || !isConnected) return;
-
-    if (validateA() && validateB() && operation) {
-      setIsFormValid(true);
-    } else {
-      setIsFormValid(false);
-    }
-  }, [valueA, valueB, operation, isConnected, isMetaMask]);
 
   const fetchUsageCount = async () => {
     try {
@@ -83,7 +89,6 @@ function App() {
         .usageCount()
         .call({ from: accounts[0] });
       const countNum = parseInt(count);
-
       setUsageCount(countNum);
     } catch (e) {
       console.error('Something went wrong: ' + e);
@@ -112,21 +117,17 @@ function App() {
     }
   };
 
-  useEffect(() => {
-    if (contract) {
-      fetchUsageCount();
-    }
-  }, [contract]);
-
   return (
     <div className="container app">
       <h1>Calculator</h1>
+
       <div className="row">
         <div className="col">
           <InputField
             value={valueA}
             setValue={setValueA}
             errorMessage={valueAError}
+            onTouch={setInputAIsTouched}
           >
             number a
           </InputField>
@@ -142,6 +143,7 @@ function App() {
             value={valueB}
             setValue={setValueB}
             errorMessage={valueBError}
+            onTouch={setInputBIsTouched}
           >
             number b
           </InputField>
@@ -175,7 +177,7 @@ function App() {
         </React.Fragment>
       )}
 
-      {!isConnected && isMetaMask && (
+      {isMetaMask && !isConnected && (
         <React.Fragment>
           <p>
             We detected MetaMask extension, but couldn't establish connection
