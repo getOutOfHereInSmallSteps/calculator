@@ -8,18 +8,21 @@ export const OperationSelector = ({ operation, setOperation }) => {
   };
 
   return (
-    <select
-      value={operation}
-      onChange={selectOperationHandler}
-      className="form-select"
-    >
-      <option disabled value="">
-        Choose...
-      </option>
-      <option value="add">Add +</option>
-      <option value="subtract">Subtract -</option>
-      <option value="multiply">Multiply x</option>
-      <option value="divide">Divide :</option>
-    </select>
+    <React.Fragment>
+      <select
+        value={operation}
+        onChange={selectOperationHandler}
+        className={`form-select ${'is-invalid'}`}
+      >
+        <option disabled value="">
+          Choose...
+        </option>
+        <option value="add">Add +</option>
+        <option value="subtract">Subtract -</option>
+        <option value="multiply">Multiply x</option>
+        <option value="divide">Divide :</option>
+      </select>
+      <div className="invalid-feedback">Error</div>
+    </React.Fragment>
   );
 };

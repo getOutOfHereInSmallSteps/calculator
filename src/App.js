@@ -3,13 +3,13 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.css';
 
-import { InputField } from './components/InputField';
-import { OperationSelector } from './components/OperationSelector';
-
 import CalculatorContractABI from './contracts/ContractABI.json';
 
+import { InputField } from './components/InputField';
+import { OperationSelector } from './components/OperationSelector';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { OutputField } from './components/OutputField';
+
 import useContractInitialization from './hooks/useContractInitialization';
 
 const contractAddress = '0x1851ffBce02A134eFd9ddBC91920b0c6DCEfB6f5';
@@ -22,6 +22,8 @@ function App() {
   const [usageCount, setUsageCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
+  const [isFormValid, setIsFormValid] = useState(true);
+
   const {
     contract,
     isMetaMask,
@@ -29,6 +31,41 @@ function App() {
     accounts,
     connectMetamaskHandler,
   } = useContractInitialization(CalculatorContractABI, contractAddress);
+
+  const validator1 = () => {
+    if (valueA < valueB && operation === 'subtract') {
+      setIsFormValid(false);
+      return 'Number a can not be less than number b';
+    } else if (valueA + valueB < 0 && operation === 'add') {
+      setIsFormValid(false);
+      return 'The result of an operation can not be less that zero';
+    } else if (!valueA) {
+      setIsFormValid(false);
+      return 'Choose a valid value to proceed';
+    }
+
+    setIsFormValid(true);
+  };
+
+  const validator2 = () => {
+    if (valueB === 0 && operation === 'divide') {
+      setIsFormValid(false);
+      return 'Division by zero is not allowed';
+    } else if (!valueB) {
+      setIsFormValid(false);
+      return 'Choose a valid value to proceed';
+    }
+    setIsFormValid(true);
+  };
+
+  const validator3 = () => {
+    if (!operation) {
+      setIsFormValid(false);
+      return 'Select a valud operation to proceed';
+    }
+
+    setIsFormValid(true);
+  };
 
   const fetchUsageCount = async () => {
     try {
@@ -41,11 +78,6 @@ function App() {
     } catch (e) {
       console.error('Something went wrong: ' + e);
     }
-  };
-
-  const inputChangeHandler = (e, setter) => {
-    const inputValue = e.target.value;
-    setter(inputValue);
   };
 
   const calculateHandler = async () => {
@@ -66,6 +98,7 @@ function App() {
       setIsLoading(false);
     } catch (e) {
       console.error(e.message);
+      setIsLoading(false);
     }
   };
 
@@ -80,10 +113,7 @@ function App() {
       <h1>Calculator</h1>
       <div className="row">
         <div className="col">
-          <InputField
-            value={valueA}
-            onChange={e => inputChangeHandler(e, setValueA)}
-          >
+          <InputField value={valueA} setValue={setValueA}>
             number a
           </InputField>
         </div>
@@ -94,10 +124,7 @@ function App() {
           />
         </div>
         <div className="col">
-          <InputField
-            value={valueB}
-            onChange={e => inputChangeHandler(e, setValueB)}
-          >
+          <InputField value={valueB} setValue={setValueB}>
             number b
           </InputField>
         </div>
@@ -113,7 +140,11 @@ function App() {
         <React.Fragment>
           <div className="row mt-3">
             <div className="col">
-              <button className="btn btn-primary" onClick={calculateHandler}>
+              <button
+                className="btn btn-primary"
+                onClick={calculateHandler}
+                disabled={!isFormValid}
+              >
                 Calculate
               </button>
             </div>
