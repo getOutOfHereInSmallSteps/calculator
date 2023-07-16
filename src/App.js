@@ -22,7 +22,10 @@ function App() {
   const [usageCount, setUsageCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [isFormValid, setIsFormValid] = useState(true);
+  const [valueAError, setValueAError] = useState('');
+  const [valueBError, setValueBError] = useState('');
+
+  const [isFormValid, setIsFormValid] = useState(false);
 
   const {
     contract,
@@ -32,40 +35,47 @@ function App() {
     connectMetamaskHandler,
   } = useContractInitialization(CalculatorContractABI, contractAddress);
 
-  const validator1 = () => {
-    if (valueA < valueB && operation === 'subtract') {
-      setIsFormValid(false);
-      return 'Number a can not be less than number b';
-    } else if (valueA + valueB < 0 && operation === 'add') {
-      setIsFormValid(false);
-      return 'The result of an operation can not be less that zero';
-    } else if (!valueA) {
-      setIsFormValid(false);
-      return 'Choose a valid value to proceed';
-    }
+  const validateA = () => {
+    const a = +valueA;
+    const b = +valueB;
 
-    setIsFormValid(true);
+    if (a < b && operation === 'subtract') {
+      setValueAError('Number a can not be less than number b');
+      return;
+    } else if (a + b < 0 && operation === 'add') {
+      setValueAError('The result of an operation can not be less that zero');
+      return;
+    } else if (!a) {
+      setValueAError('Choose a valid value to proceed');
+      return;
+    }
+    setValueAError('');
+    return true;
   };
 
-  const validator2 = () => {
-    if (valueB === 0 && operation === 'divide') {
-      setIsFormValid(false);
-      return 'Division by zero is not allowed';
-    } else if (!valueB) {
-      setIsFormValid(false);
-      return 'Choose a valid value to proceed';
+  const validateB = () => {
+    const b = +valueB;
+
+    if (!valueB) {
+      setValueBError('Choose a valid value to proceed');
+      return;
+    } else if (b === 0 && operation === 'divide') {
+      setValueBError('Division by zero is not allowed');
+      return;
     }
-    setIsFormValid(true);
+    setValueBError('');
+    return true;
   };
 
-  const validator3 = () => {
-    if (!operation) {
-      setIsFormValid(false);
-      return 'Select a valud operation to proceed';
-    }
+  useEffect(() => {
+    if (!isMetaMask || !isConnected) return;
 
-    setIsFormValid(true);
-  };
+    if (validateA() && validateB() && operation) {
+      setIsFormValid(true);
+    } else {
+      setIsFormValid(false);
+    }
+  }, [valueA, valueB, operation, isConnected, isMetaMask]);
 
   const fetchUsageCount = async () => {
     try {
@@ -113,7 +123,11 @@ function App() {
       <h1>Calculator</h1>
       <div className="row">
         <div className="col">
-          <InputField value={valueA} setValue={setValueA}>
+          <InputField
+            value={valueA}
+            setValue={setValueA}
+            errorMessage={valueAError}
+          >
             number a
           </InputField>
         </div>
@@ -124,7 +138,11 @@ function App() {
           />
         </div>
         <div className="col">
-          <InputField value={valueB} setValue={setValueB}>
+          <InputField
+            value={valueB}
+            setValue={setValueB}
+            errorMessage={valueBError}
+          >
             number b
           </InputField>
         </div>

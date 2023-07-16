@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const InputField = ({ value, children, setValue }) => {
+export const InputField = ({ value, children, setValue, errorMessage }) => {
   const inputChangeHandler = e => {
     const inputValue = e.target.value;
     if (isNaN(+inputValue) || !inputValue === '') return;
@@ -14,10 +14,12 @@ export const InputField = ({ value, children, setValue }) => {
         value={value}
         onChange={inputChangeHandler}
         placeholder={children}
-        className={`form-control ${'is-invalid'}`}
+        className={`form-control ${errorMessage ? 'is-invalid' : ''}`}
         required
       />
-      <div className="invalid-feedback">Error</div>
+      {errorMessage ? (
+        <div className="invalid-feedback">{errorMessage}</div>
+      ) : null}
     </React.Fragment>
   );
 };
