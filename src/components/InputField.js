@@ -23,7 +23,7 @@ export const InputField = ({
         onChange={inputChangeHandler}
         onBlur={() => onTouch(true)}
         placeholder={children}
-        className={`form-control ${errorMessage ? 'is-invalid' : ''}`}
+        className={`form-control ${errorMessage ? 'is-invalid' : ''} mb-3`}
         required
       />
       {errorMessage ? (

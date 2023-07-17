@@ -122,7 +122,7 @@ function App() {
       <h1>Calculator</h1>
 
       <div className="row">
-        <div className="col">
+        <div className="col-md-4">
           <InputField
             value={valueA}
             setValue={setValueA}
@@ -132,13 +132,13 @@ function App() {
             number a
           </InputField>
         </div>
-        <div className="col">
+        <div className="col-md-4">
           <OperationSelector
             operation={operation}
             setOperation={setOperation}
           />
         </div>
-        <div className="col">
+        <div className="col-md-4">
           <InputField
             value={valueB}
             setValue={setValueB}

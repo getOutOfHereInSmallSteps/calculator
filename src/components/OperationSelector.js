@@ -11,7 +11,7 @@ export const OperationSelector = ({ operation, setOperation }) => {
     <select
       value={operation}
       onChange={selectOperationHandler}
-      className={`form-select`}
+      className={`form-select mb-3`}
     >
       <option disabled value="">
         Choose...
