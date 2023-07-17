@@ -26,6 +26,7 @@ function App() {
   const [isFormValid, setIsFormValid] = useState(false);
   const [inputAIsTocuhed, setInputAIsTouched] = useState(false);
   const [inputBIsTocuhed, setInputBIsTouched] = useState(false);
+  const [error, setError] = useState('');
 
   const {
     contract,
@@ -34,20 +35,6 @@ function App() {
     accounts,
     connectMetamaskHandler,
   } = useContractInitialization(CalculatorContractABI, contractAddress);
-
-  useEffect(() => {
-    if (!isMetaMask || !isConnected) return;
-    if (!inputAIsTocuhed && !inputBIsTocuhed) return;
-
-    const isValid = validateA() && validateB() && operation;
-    setIsFormValid(isValid);
-  }, [valueA, valueB, operation, isConnected, isMetaMask]);
-
-  useEffect(() => {
-    if (contract) {
-      fetchUsageCount();
-    }
-  }, [contract]);
 
   const validateA = () => {
     const a = +valueA;
@@ -92,13 +79,13 @@ function App() {
       setUsageCount(countNum);
     } catch (e) {
       console.error('Something went wrong: ' + e);
+      setError(e.message);
     }
   };
 
   const calculateHandler = async () => {
     try {
-      if (!valueA || !valueB || isNaN(valueA) || isNaN(valueB)) return;
-
+      setError('');
       setIsLoading(true);
 
       await contract.methods[operation](valueA, valueB).send({
@@ -113,9 +100,25 @@ function App() {
       setIsLoading(false);
     } catch (e) {
       console.error(e.message);
+      setError(e.message);
+      setResult('');
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!isMetaMask || !isConnected) return;
+    if (!inputAIsTocuhed && !inputBIsTocuhed) return;
+
+    const isValid = validateA() && validateB() && operation;
+    setIsFormValid(isValid);
+  }, [valueA, valueB, operation, isConnected, isMetaMask]);
+
+  useEffect(() => {
+    if (contract) {
+      fetchUsageCount();
+    }
+  }, [contract]);
 
   return (
     <div className="container app">
@@ -125,7 +128,10 @@ function App() {
         <div className="col-md-4">
           <InputField
             value={valueA}
-            setValue={setValueA}
+            setValue={val => {
+              setValueA(val);
+              setResult('');
+            }}
             errorMessage={valueAError}
             onTouch={setInputAIsTouched}
           >
@@ -141,7 +147,10 @@ function App() {
         <div className="col-md-4">
           <InputField
             value={valueB}
-            setValue={setValueB}
+            setValue={val => {
+              setValueB(val);
+              setResult('');
+            }}
             errorMessage={valueBError}
             onTouch={setInputBIsTouched}
           >
@@ -201,6 +210,12 @@ function App() {
       )}
 
       {isLoading && <LoadingSpinner />}
+
+      {error && (
+        <div class="alert alert-danger" role="alert">
+          {error}
+        </div>
+      )}
     </div>
   );
 }
